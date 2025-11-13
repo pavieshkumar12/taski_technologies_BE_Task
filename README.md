@@ -141,9 +141,4 @@ All endpoints are prefixed with `/api`.
 - `morgan` logs every HTTP request in `combined` format.
 - MongoDB connection logs success/failure via console.
 
-## Future Enhancements (Ideas)
-- Add automated tests (Jest/Supertest) for controllers and routes.
-- Introduce authentication/authorization for protected operations.
-- Serve Swagger/OpenAPI documentation for faster integration.
-- Implement rate limiting and caching for popular endpoints.
 

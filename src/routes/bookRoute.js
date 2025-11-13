@@ -29,7 +29,7 @@ router.get(
       .keys({
         author: Joi.string().allow("").optional(),
         page: Joi.number().integer().min(1).optional(),
-        limit: Joi.number().integer().min(1).max(50).optional(),
+        limit: Joi.number().integer().min(1).optional(),
       })
   }),
   getBooks

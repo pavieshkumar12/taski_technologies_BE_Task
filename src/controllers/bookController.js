@@ -38,27 +38,36 @@ export const createBook = async (req, res, next) => {
 	}
 };
 
-export const getBooks = async (req, res, next) => {
-	try {
+export const getBooks = async (req, res, next) => {  
+	try {  
 		const { title, author, page = 1, limit = 10 } = req.query;
 
+		// Convert page and limit to integers
 		const parsedPage = Number.parseInt(page, 10);
 		const parsedLimit = Number.parseInt(limit, 10);
 
+		// Ensure page is a valid positive number, otherwise default to 1
 		const pageNumber = Number.isFinite(parsedPage) && parsedPage >= 1 ? parsedPage : 1;
+		// Ensure limit is a valid positive number, otherwise default to 10
 		const limitNumber = Number.isFinite(parsedLimit) && parsedLimit >= 1 ? parsedLimit : 10;
 
+		// Initialize an array to hold OR filter conditions for MongoDB
 		const orConditions = [];
 
+		// If title is provided and not empty, create a case-insensitive regex for searching
 		const titleRegex = title && title.trim() !== "" ? new RegExp(title.trim(), "i") : null;
+		// If titleRegex exists, add it as a filter condition
 		if (titleRegex) {
 			orConditions.push({ title: titleRegex });
 		}
 
+		// If author is provided and not empty, create a case-insensitive regex
 		const authorRegex = author && author.trim() !== "" ? new RegExp(author.trim(), "i") : null;
 		if (authorRegex) {
+			// Find all authors whose names match the regex
 			const matchingAuthors = await Author.find({ name: authorRegex }).select("_id");
 
+			
 			if (!matchingAuthors.length) {
 				return res.json({
 					data: [],
@@ -71,22 +80,29 @@ export const getBooks = async (req, res, next) => {
 				});
 			}
 
+			// Add author filter (books written by matching authors)
 			orConditions.push({
 				author: { $in: matchingAuthors.map((a) => a._id) },
 			});
 		}
 
+		// Combine all OR conditions into a MongoDB filter object
 		const filters = orConditions.length ? { $or: orConditions } : {};
 
+		// Count total number of books matching the filters
 		const total = await Book.countDocuments(filters);
+		// Find books matching the filters, populate author details, sort alphabetically by title,
+		// and apply pagination (skip/limit)
 		const books = await Book.find(filters)
 			.populate("author")
 			.sort({ title: 1 })
 			.skip((pageNumber - 1) * limitNumber)
 			.limit(limitNumber);
 
+		// Calculate total pages (ceil division of total items by limit)
 		const totalPages = total > 0 ? Math.ceil(total / limitNumber) : 0;
 
+		// Send JSON response with books data and pagination details
 		res.json({
 			data: books,
 			pagination: {
@@ -101,6 +117,7 @@ export const getBooks = async (req, res, next) => {
 		next(err);
 	}
 };
+
 
 export const updateBook = async (req, res, next) => {
 	try {
