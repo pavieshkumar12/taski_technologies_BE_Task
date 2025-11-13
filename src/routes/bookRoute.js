@@ -27,6 +27,7 @@ router.get(
   celebrate({
     [Segments.QUERY]: Joi.object()
       .keys({
+        title: Joi.string().allow("").optional(),
         author: Joi.string().allow("").optional(),
         page: Joi.number().integer().min(1).optional(),
         limit: Joi.number().integer().min(1).optional(),

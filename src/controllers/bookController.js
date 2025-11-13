@@ -170,7 +170,7 @@ export const updateBook = async (req, res, next) => {
 			return res.status(404).json({ error: "Book not found" });
 		}
 
-		res.json(updated);
+		res.json({ message: "Book updated successfully", data: updated });
 	} catch (err) {
 		res.status(400).json({ error: err.message });
 		next(err);
